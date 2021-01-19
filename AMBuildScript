@@ -1,0 +1,82 @@
+import os
+
+#
+# Compiler settings
+#
+cxx = builder.DetectCompilers()
+
+cxx.defines += [
+    'HAVE_STDINT_H',
+    'linux'
+  ]
+
+if cxx.like('gcc'):
+  cxx.cflags += [
+    '-Wall',
+    '-Wno-error=unused-result',
+    '-Wno-error=unused-variable',
+    '-Wno-unknown-pragmas',
+    '-Wno-unused-value',
+    '-fno-strict-aliasing',
+    '-fPIC',
+    '-m32',
+    '-D__linux__'
+  ]
+
+  cxx.cxxflags += [
+    '-std=c++11',
+    '-fexceptions',
+    '-static-libstdc++',
+    '-static-libgcc',
+    '-fno-rtti'
+  ]
+
+  cxx.linkflags += [
+    '-static-libstdc++',
+    '-static-libgcc',
+    '-m32'
+  ]
+  cxx.cflags += ['-O2']
+
+elif cxx.like('msvc'):
+  cxx.cflags += [
+    '/W3'
+  ]
+
+  cxx.cxxflags += [
+    '/EHsc'
+  ]
+
+  cxx.linkflags += [
+    '/MACHINE:X86',
+    '/SUBSYSTEM:WINDOWS',
+    'kernel32.lib'
+  ]
+
+  cxx.cflags += ['/O1']
+  cxx.linkflags += ['/OPT:ICF', '/OPT:REF']
+  cxx.cflags += ['/MT']
+  cxx.defines += ['NDEBUG']
+  
+cxx.includes += [
+  os.path.join(builder.sourcePath, ''),
+  os.path.join(builder.sourcePath, 'HLSDK'),
+  os.path.join(builder.sourcePath, 'METAMOD'),
+]
+
+
+name = 'KaraulovLab_amxx'
+if builder.target_platform == 'linux':
+  name += '_i386'
+
+binary = cxx.Library(name)
+binary.sources += [
+  'Source.cpp',
+  'amxxmodule.cpp'
+]
+
+#
+# Run scripts, add binaries
+#
+
+builder.Add(binary)
