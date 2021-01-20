@@ -225,24 +225,33 @@ static cell AMX_NATIVE_CALL test_regex_req(AMX* amx, cell* params) // 1 pararam
 			MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
 			return 0;
 		}
+		char tmpSysInfoPrint[256];
+		int error = 0;
 		try
 		{
-			char tmpSysInfoPrint[256];
+			error = 1;
 			const static std::regex re("(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n");
+			error = 2;
 			std::cmatch m;
+			error = 3;
 			if (std::regex_match("HTTP/1.1 200 OK\r\n", m, re)) {
+				error = 4;
 				auto version = std::string(m[1]);
 				auto status = std::stoi(std::string(m[2]));
 				auto reason = std::string(m[3]);
+				error = 5;
 				snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s:%i:%s", version.c_str(), status, reason.c_str());
+				error = 6;
 				UTIL_TextMsg(index, tmpSysInfoPrint);
+				error = 7;
 			}
 			else
 				UTIL_TextMsg(index, "regex_match: false");
 		}
 		catch (...)
 		{
-			UTIL_TextMsg(index, "regex_match: fatal error");
+			snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s:%i", "Fatal error", error);
+			UTIL_TextMsg(index, tmpSysInfoPrint);
 		}
 	}
 	return 0;
