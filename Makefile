@@ -1,4 +1,4 @@
-PROJECT = karaulovlab_amxx_i386.so
+PROJECT = karlab_amxx_i386.so
 
 INCLUDE = -I. \
 	-IHLSDK -IMETAMOD
@@ -6,8 +6,8 @@ INCLUDE = -I. \
 OBJECTS = amxxmodule.cpp \
 	Source.cpp
 
-FLAGS = -pthread -O3 -DNDEBUG -fPIC -Dlinux -D__linux__ -D__USE_GNU -D_vsnprintf=vsnprintf -std=gnu++14
-LINK = -m32 -static-libgcc -static-libstdc++ -L/usr/lib32 -L/opt/diet 
+FLAGS =  -fPIC -fno-rtti -O3 -DNDEBUG -D_vsnprintf=vsnprintf -std=gnu++2a -fexceptions
+LINK = -m32 -static-libstdc++ -static-libgcc -shared
 
 default:
-	gcc-7 $(OBJECTS) $(FLAGS) $(INCLUDE) $(LINK) -o $(PROJECT)
+	gcc $(OBJECTS) $(FLAGS) $(INCLUDE) $(LINK) -o $(PROJECT)

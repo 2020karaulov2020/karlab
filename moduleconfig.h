@@ -4,12 +4,12 @@
 #define __MODULECONFIG_H__
 
 // Module info
-#define MODULE_NAME "KaraulovLab"
+#define MODULE_NAME "Karaulov Lab"
 #define MODULE_VERSION "1.0.0.1"
 #define MODULE_AUTHOR "Karaulov"
 #define MODULE_URL "http://"
 #define MODULE_LOGTAG "KLAB"
-#define MODULE_LIBRARY "karaulovlab"
+#define MODULE_LIBRARY "karlab"
 #define MODULE_LIBCLASS ""
 // If you want the module not to be reloaded on mapchange, remove / comment out the next line
 #define MODULE_RELOAD_ON_MAPCHANGE

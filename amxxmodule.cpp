@@ -34,11 +34,11 @@
 #ifndef WIN32
 #include "force_link_glibc_2.13.h"
 #endif 
-#include <string.h>
-#include <new>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <new>
+#include <string.h>
 #include "amxxmodule.h"
 
 /************* METAMOD SUPPORT *************/

@@ -17,18 +17,16 @@ if cxx.like('gcc'):
     '-Wno-error=unused-variable',
     '-Wno-unknown-pragmas',
     '-Wno-unused-value',
-    '-fno-strict-aliasing',
     '-fPIC',
     '-m32',
     '-D__linux__'
   ]
 
   cxx.cxxflags += [
-    '-std=c++11',
+    '-std=gnu++2a',
     '-fexceptions',
     '-static-libstdc++',
-    '-static-libgcc',
-    '-fno-rtti'
+    '-static-libgcc'
   ]
 
   cxx.linkflags += [
@@ -36,7 +34,7 @@ if cxx.like('gcc'):
     '-static-libgcc',
     '-m32'
   ]
-  cxx.cflags += ['-O2']
+  cxx.cflags += ['-O3']
 
 elif cxx.like('msvc'):
   cxx.cflags += [
@@ -65,7 +63,7 @@ cxx.includes += [
 ]
 
 
-name = 'KaraulovLab_amxx'
+name = 'karlab_amxx'
 if builder.target_platform == 'linux':
   name += '_i386'
 

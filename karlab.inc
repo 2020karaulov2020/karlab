@@ -1,13 +1,13 @@
-#if defined _karaulovlab_included
+#if defined _karlab_included
 	#endinput
 #endif
-#define _karaulovlab_included
+#define _karlab_included
 
 #include <amxmodx>
 
-#pragma reqlib karaulovlab
+#pragma reqlib karlab
 #if !defined AMXMODX_NOAUTOLOAD
-	#pragma loadlib karaulovlab
+	#pragma loadlib karlab
 #endif 
 
 native test_download_speed(const id);
