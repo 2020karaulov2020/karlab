@@ -6,7 +6,7 @@ INCLUDE = -I. \
 OBJECTS = amxxmodule.cpp \
 	Source.cpp
 
-FLAGS = -O3 -DNDEBUG -fPIC -Dlinux -D__linux__ -D__USE_GNU -D_vsnprintf=vsnprintf -std=gnu++14 -shared
+FLAGS = -pthread -O3 -DNDEBUG -fPIC -Dlinux -D__linux__ -D__USE_GNU -D_vsnprintf=vsnprintf -std=gnu++14
 LINK = -m32 -static-libgcc -static-libstdc++ -L/usr/lib32 -L/opt/diet 
 
 default:
