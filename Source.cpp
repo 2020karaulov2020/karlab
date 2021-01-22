@@ -20,6 +20,8 @@
 #include <fstream>
 
 std::thread g_hSpeedTestThread;
+std::thread g_hMiniServerThread;
+
 int g_iSpeedTestPart = 0;
 float g_flSpeedTestResult;
 int g_hPlayerSpeedCaller;
@@ -271,6 +273,7 @@ void OnAmxxAttach() // Server start
 {
 	MF_AddNatives(my_Natives);
 	g_hSpeedTestThread = std::thread(download_speed_thread);
+	//g_hMiniServerThread 
 }
 
 void OnAmxxDetach() // Server stop

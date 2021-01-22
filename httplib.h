@@ -5133,9 +5133,12 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
   *g_retval = 18;
   auto close_connection = !keep_alive_;
   auto ret = process_socket(socket_, [&](Stream &strm) {
+
+      *g_retval = 191;
     return handle_request(strm, req, res, close_connection, error);
   });
 
+  *g_retval = 192;
   // Briefly lock mutex in order to mark that a request is no longer ongoing
   {
     std::lock_guard<std::mutex> guard(socket_mutex_);
@@ -5145,6 +5148,7 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
       socket_requests_are_from_thread_ = std::thread::id();
     }
 
+    *g_retval = 193;
     if (socket_should_be_closed_when_request_is_done_ || close_connection ||
         !ret) {
       shutdown_ssl(socket_, true);
@@ -5172,11 +5176,12 @@ inline Result ClientImpl::send(const Request &req) {
 inline bool ClientImpl::handle_request(Stream &strm, const Request &req,
                                        Response &res, bool close_connection,
                                        Error &error) {
+    *g_retval = 181;
   if (req.path.empty()) {
     error = Error::Connection;
     return false;
   }
-
+  *g_retval = 182;
   bool ret;
 
   if (!is_ssl() && !proxy_host_.empty() && proxy_port_ != -1) {
@@ -5186,13 +5191,13 @@ inline bool ClientImpl::handle_request(Stream &strm, const Request &req,
   } else {
     ret = process_request(strm, req, res, close_connection, error);
   }
-
+  *g_retval = 183;
   if (!ret) { return false; }
 
   if (300 < res.status && res.status < 400 && follow_location_) {
     ret = redirect(req, res, error);
   }
-
+  *g_retval = 184;
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
   if ((res.status == 401 || res.status == 407) &&
       req.authorization_count_ < 5) {
