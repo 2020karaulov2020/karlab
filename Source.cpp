@@ -2,9 +2,9 @@
 #define HAVE_STDINT_H
 #endif
 
-#ifndef WIN32
-#include "force_link_glibc_2.13.h"
-#endif 
+//#ifndef WIN32
+//#include "force_link_glibc_2.13.h"
+//#endif 
 
 #ifndef WIN32
 #include <sys/sysinfo.h>
