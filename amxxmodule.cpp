@@ -31,9 +31,9 @@
 *
 *  Description: AMX Mod X Module Interface Functions
 */
-#ifndef WIN32
-#include "force_link_glibc_2.13.h"
-#endif 
+//#ifndef WIN32
+//#include "force_link_glibc_2.13.h"
+//#endif 
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
