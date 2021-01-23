@@ -236,13 +236,13 @@ static cell AMX_NATIVE_CALL test_regex_req(AMX* amx, cell* params) // 1 pararam
 		{
 			error = 1;
 
-			std::regex* re = new std::regex("(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n");
+			const static std::regex re ("(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n");
 
 			error = 2;
 			std::cmatch m;
 			error = 3;
 
-			if (std::regex_match("HTTP/1.1 200 OK\r\n", m, *re)) {
+			if (std::regex_match("HTTP/1.1 200 OK\r\n", m, re)) {
 				error = 4;
 				auto version = std::string(m[1]);
 				auto status = std::stoi(std::string(m[2]));
