@@ -11,25 +11,15 @@
 //
 // Module SDK
 //
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-
-#ifndef WIN32
-#include "force_link_glibc_2.5.h"
-#endif 
-
+//#ifndef WIN32
+//#include "force_link_glibc_2.5.h"
+//#endif 
 #include <string.h>
 #include <new>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-//#include "fix_minmax.h"
 #include "amxxmodule.h"
-
 
 /************* METAMOD SUPPORT *************/
 #ifdef USE_METAMOD
@@ -2232,7 +2222,7 @@ static META_FUNCTIONS g_MetaFunctions_Table =
 	GetEngineFunctions_Post
 };
 
-int Meta_Query(const char *ifvers, plugin_info_t **pPlugInfo, mutil_funcs_t *pMetaUtilFuncs)
+ int Meta_Query(const char *ifvers, plugin_info_t **pPlugInfo, mutil_funcs_t *pMetaUtilFuncs)
 {
 	if ((int) CVAR_GET_FLOAT("developer") != 0)
 		UTIL_LogPrintf("[%s] dev: called: Meta_Query; version=%s, ours=%s\n", 
@@ -3169,5 +3159,3 @@ unsigned int strncopy(D *dest, const S *src, size_t count)
 
 	return (dest - start);
 }
-
-#pragma GCC diagnostic pop

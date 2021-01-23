@@ -16,10 +16,7 @@
 #ifndef __AMXXMODULE_H__
 #define __AMXXMODULE_H__
 
-#pragma GCC system_header
-
 // config
-//#include "../../../cpp/helper/moduleconfig.h"
 #include "moduleconfig.h"
 #include <IGameConfigs.h>
 
@@ -2146,7 +2143,7 @@ typedef int				(*PFN_FIND_AMXSCRIPT_BYNAME)	(const char * /*name*/);
 typedef int				(*PFN_SET_AMXSTRING)			(AMX * /*amx*/, cell /*amx_addr*/, const char * /* source */, int /* max */);
 typedef int				(*PFN_SET_AMXSTRING_UTF8_CHAR)	(AMX *amx, cell amx_addr, const char *source, size_t sourcelen, size_t maxlen);
 typedef int				(*PFN_SET_AMXSTRING_UTF8_CELL)	(AMX *amx, cell amx_addr, const cell *source, size_t sourcelen, size_t maxlen);
-typedef char *			(*PFN_GET_AMXSTRING)			(AMX * /*amx*/, cell /*amx_addr*/, int /*bufferId*/, int * /*pLen*/);
+typedef char *			(*PFN_GET_AMXSTRING)			(AMX* /*amx*/, int /*amx_addr*/, int /*bufferId*/, int * /*pLen*/);
 typedef char *			(*PFN_GET_AMXSTRING_NULL)		(AMX * /*amx*/, cell /*amx_addr*/, int /*bufferId*/, int * /*pLen*/);
 typedef int				(*PFN_GET_AMXSTRINGLEN)			(const cell *ptr);
 typedef char *			(*PFN_FORMAT_AMXSTRING)			(AMX * /*amx*/, cell * /*params*/, int /*startParam*/, int * /*pLen*/);
@@ -2385,6 +2382,8 @@ void *			MF_MessageBlock				(int mode, int msg, int *opt) { }
 IGameConfigManager* MF_GetConfigManager     (void) { }
 #endif	// MAY_NEVER_BE_DEFINED
 
+void MF_Log(const char* fmt, ...);
+void MF_LogError(AMX* amx, int err, const char* fmt, ...);
 #define MF_AddNatives g_fn_AddNatives
 #define MF_AddNewNatives g_fn_AddNewNatives
 #define MF_BuildPathname g_fn_BuildPathname
@@ -2405,8 +2404,6 @@ IGameConfigManager* MF_GetConfigManager     (void) { }
 #define MF_GetAmxStringNull g_fn_GetAmxStringNull
 #define MF_GetAmxStringLen g_fn_GetAmxStringLen
 #define MF_CopyAmxMemory g_fn_CopyAmxMemory
-void MF_Log(const char *fmt, ...);
-void MF_LogError(AMX *amx, int err, const char *fmt, ...);
 #define MF_RaiseAmxError g_fn_RaiseAmxError
 #define MF_RegisterForward g_fn_RegisterForward
 #define MF_ExecuteForward g_fn_ExecuteForward

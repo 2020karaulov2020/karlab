@@ -1,10 +1,10 @@
 #ifdef WIN32
 #define HAVE_STDINT_H
 #endif
-#define USE_METAMOD
-#ifndef WIN32
-#include "force_link_glibc_2.5.h"
-#endif 
+
+//#ifndef WIN32
+//#include "force_link_glibc_2.5.h"
+//#endif 
 
 #ifndef WIN32
 #include <sys/sysinfo.h>
@@ -12,13 +12,14 @@
 #endif
 
 
-
 #include "httplib.h"
+#include <stdlib.h>
+#include <string>
+#include <stdio.h>
+#include <fstream>
+#include "Header.h"
 
 #include "amxxmodule.h"
-#include "Header.h"
-#include <fstream>
-
 
 std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
@@ -317,6 +318,7 @@ static cell AMX_NATIVE_CALL stop_mini_server(AMX* amx, cell* params)
 static cell AMX_NATIVE_CALL mini_server_res(AMX* amx, cell* params) // 2 params
 {
 	int iLen, iLen2;
+
 	const char* ip = MF_GetAmxString(amx, params[1], 0, &iLen);
 	const char* res = MF_GetAmxString(amx, params[2], 1, &iLen2);
 	sMiniServerStr_RES tmpsMiniServerStr_RES = sMiniServerStr_RES();
@@ -381,6 +383,11 @@ AMX_NATIVE_INFO my_Natives[] =
 	{"mini_server_res",	mini_server_res},
 	{NULL,			NULL},
 };
+
+void OnPluginsLoaded() 
+{
+	g_hReqForward = MF_RegisterForward("mini_server_req", ET_STOP, FP_STRING, FP_STRING, FP_DONE);
+}
 
 void OnAmxxAttach() // Server start
 {

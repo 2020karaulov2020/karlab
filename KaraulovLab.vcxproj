@@ -28,6 +28,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>karaulovlab_amxx</TargetName>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -38,15 +39,21 @@
     </Midl>
     <ClCompile>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>
+      </FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <BrowseInformation>true</BrowseInformation>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <StringPooling>true</StringPooling>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <SDLCheck>true</SDLCheck>
+      <BrowseInformation>
+      </BrowseInformation>
+      <SuppressStartupBanner>
+      </SuppressStartupBanner>
+      <StringPooling>
+      </StringPooling>
+      <RuntimeTypeInfo>
+      </RuntimeTypeInfo>
+      <SDLCheck>
+      </SDLCheck>
       <AdditionalIncludeDirectories>HLSDK;METAMOD</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;_USRDLL;WIN;WIN32;__WIN;__WIN32;_WIN_;_WIN;__WIN32__;_WIN32;_WIN32_;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -56,10 +63,13 @@
       <Culture>0x041d</Culture>
     </ResourceCompile>
     <Link>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <SuppressStartupBanner>
+      </SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <OptimizeReferences>
+      </OptimizeReferences>
       <EnableUAC>false</EnableUAC>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
