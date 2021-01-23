@@ -20,8 +20,7 @@
 #include <fstream>
 
 
-std::string regexline = "(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n";
-std::regex re(regexline);
+std::regex re = "(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n";
 
 std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
