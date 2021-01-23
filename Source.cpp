@@ -19,6 +19,10 @@
 
 #include <fstream>
 
+
+std::string regexline = "(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n";
+std::regex re(regexline);
+
 std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
 
@@ -234,7 +238,6 @@ static cell AMX_NATIVE_CALL test_regex_req(AMX* amx, cell* params) // 1 pararam
 		try
 		{
 			error = 1;
-			const static std::regex re("(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n");
 			error = 2;
 			std::cmatch m;
 			error = 3;
