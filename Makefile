@@ -2,7 +2,7 @@ NAME = karlab
 COMPILER = clang++
 OBJECTS = amxxmodule.cpp Source.cpp
 
-LINK = -lm -ldl -static-libgcc -static-libstdc++ -m32 
+LINK = -Wl,--exclude-libs,ALL -lm -ldl -static-libgcc -static-libstdc++ -m32 
 
 ifeq "$(COMPILER)" "clang++"
 	LINK += -Wno-return-type-c-linkage -fPIC
