@@ -5,7 +5,8 @@ public plugin_init() {
 	register_plugin("Karlab tester", "1.0", "BADMAN");
 	register_concmd("test_speed","InitDownload", ADMIN_RCON, "InitDownload")
 	register_concmd("test_info","InitTestInfo", ADMIN_RCON, "InitTestInfo")
-	register_concmd("test_regex","InitTestRegex", ADMIN_RCON, "InitTestInfo")
+	register_concmd("test_regex","InitTestRegex", ADMIN_RCON, "InitTestRegex")
+	register_concmd("startserver8080","InitMiniServer8080", ADMIN_RCON, "InitTestInfo")
 }
 
 public InitDownload(Index)
@@ -21,4 +22,14 @@ public InitTestInfo(Index)
 public InitTestRegex(Index)
 {
 	test_regex_req(Index )
+}
+
+public InitMiniServer8080(Index)
+{
+	init_mini_server(8080)
+}
+
+public mini_server_req(ip[],req[])
+{
+	mini_server_res(ip,ip)
 }

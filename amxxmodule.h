@@ -151,8 +151,8 @@ struct amxx_module_info_s
   typedef uint16_t  ucell;
   typedef int16_t   cell;
 #elif PAWN_CELL_SIZE==32
-  typedef uint32_t  ucell;
-  typedef int32_t   cell;
+  typedef unsigned int  ucell;
+  typedef int   cell;
 #define REAL	float
 #elif PAWN_CELL_SIZE==64
   typedef uint64_t  ucell;
@@ -2143,7 +2143,7 @@ typedef int				(*PFN_FIND_AMXSCRIPT_BYNAME)	(const char * /*name*/);
 typedef int				(*PFN_SET_AMXSTRING)			(AMX * /*amx*/, cell /*amx_addr*/, const char * /* source */, int /* max */);
 typedef int				(*PFN_SET_AMXSTRING_UTF8_CHAR)	(AMX *amx, cell amx_addr, const char *source, size_t sourcelen, size_t maxlen);
 typedef int				(*PFN_SET_AMXSTRING_UTF8_CELL)	(AMX *amx, cell amx_addr, const cell *source, size_t sourcelen, size_t maxlen);
-typedef char *			(*PFN_GET_AMXSTRING)			(AMX* /*amx*/, int /*amx_addr*/, int /*bufferId*/, int * /*pLen*/);
+typedef char *			(*PFN_GET_AMXSTRING)			(AMX* /*amx*/, cell /*amx_addr*/, int /*bufferId*/, int * /*pLen*/);
 typedef char *			(*PFN_GET_AMXSTRING_NULL)		(AMX * /*amx*/, cell /*amx_addr*/, int /*bufferId*/, int * /*pLen*/);
 typedef int				(*PFN_GET_AMXSTRINGLEN)			(const cell *ptr);
 typedef char *			(*PFN_FORMAT_AMXSTRING)			(AMX * /*amx*/, cell * /*params*/, int /*startParam*/, int * /*pLen*/);
