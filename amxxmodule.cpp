@@ -18,6 +18,10 @@
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 
+#ifndef WIN32
+#include "force_link_glibc_2.5.h"
+#endif 
+
 #include <string.h>
 #include <new>
 #include <stdarg.h>
