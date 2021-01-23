@@ -1,22 +1,22 @@
 #ifdef WIN32
 #define HAVE_STDINT_H
 #endif
-
-//#ifndef WIN32
-//#include "force_link_glibc_2.13.h"
-//#endif 
+#define USE_METAMOD
+#ifndef WIN32
+#include "force_link_glibc_2.5.h"
+#endif 
 
 #ifndef WIN32
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #endif
 
+
+
 #include "httplib.h"
 
 #include "amxxmodule.h"
 #include "Header.h"
-
-
 #include <fstream>
 
 
@@ -78,6 +78,76 @@ void UTIL_TextMsg(int iPlayer, char* message)
 }
 
 
+httplib::Server g_hMiniServer;
+int g_iWaitForListen = 0;
+int g_iMiniServerPort = 1000;
+int g_hReqForward = 0;
+struct sMiniServerStr_REQ
+{
+	std::string val;
+	std::string ip;
+};
+std::vector<sMiniServerStr_REQ> g_MiniServerReqList;
+
+struct sMiniServerStr_RES
+{
+	std::string res;
+	std::string ip;
+};
+std::vector<sMiniServerStr_RES> g_MiniServerResList;
+/*
+	1. Запросить вызов forward
+	2. После вызова forward последует ответ в виде текста и ip ответа
+*/
+void mini_server_thread()
+{
+	g_hMiniServer.new_task_queue = [] { return new httplib::ThreadPool(64); };
+	while (true && g_iWaitForListen != -1)
+	{
+		while (g_iWaitForListen == 0)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+
+		g_hMiniServer.Get("/miniserver", [](const httplib::Request& req, httplib::Response& res)
+			{
+				if (!req.has_param("value")) {
+					res.set_content("No value input", "text/plain");
+				}
+				else
+				{
+					auto val = req.get_param_value("value");
+					sMiniServerStr_REQ tmpsMiniServerStr_REQ = sMiniServerStr_REQ();
+					tmpsMiniServerStr_REQ.ip = req.remote_addr;
+					tmpsMiniServerStr_REQ.val = val;
+					g_MiniServerReqList.push_back(tmpsMiniServerStr_REQ);
+					int maxwait = 100;
+					while (maxwait > 0)
+					{
+						maxwait--;
+						std::this_thread::sleep_for(std::chrono::milliseconds(100));
+						for (unsigned int i = 0; i < g_MiniServerResList.size(); i++)
+						{
+							if (g_MiniServerResList[i].ip == req.remote_addr)
+							{
+								res.set_content(g_MiniServerResList[i].res, "text/plain");
+								g_MiniServerResList.erase(g_MiniServerResList.begin() + i);
+								return;
+							}
+						}
+					}
+					if (maxwait == 0)
+					{
+						res.set_content("No response found", "text/plain");
+					}
+				}
+			});
+
+		g_hMiniServer.listen("0.0.0.0", g_iMiniServerPort);
+		g_iWaitForListen = 0;
+	}
+}
+
 
 void download_speed_thread()
 {
@@ -95,7 +165,7 @@ void download_speed_thread()
 				g_iSpeedTestPart = 5;
 				cli.set_connection_timeout(5);
 				g_iSpeedTestPart = 6;
-				auto res = cli.Get("/files/100mb.bin", &g_iSpeedTestPart);
+				auto res = cli.Get("/files/100mb.bin");
 				g_iSpeedTestPart = 7;
 				high_resolution_clock::time_point t2 = high_resolution_clock::now();
 				g_iSpeedTestPart = 8;
@@ -109,7 +179,7 @@ void download_speed_thread()
 			}
 			catch (...)
 			{
-				
+
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -118,6 +188,15 @@ void download_speed_thread()
 
 void StartFrame(void)
 {
+	if (g_MiniServerReqList.size() > 0)
+	{
+		for (const auto& s : g_MiniServerReqList)
+		{
+			MF_ExecuteForward(g_hReqForward, s.ip.c_str(), s.val.c_str());
+		}
+		g_MiniServerReqList.clear();
+	}
+
 	if (g_iSpeedTestPart >= 2)
 	{
 		if (IsPlayerSafe(g_hPlayerSpeedCaller) && g_iSpeedTestPart == 2)
@@ -129,7 +208,7 @@ void StartFrame(void)
 		else if (IsPlayerSafe(g_hPlayerSpeedCaller))
 		{
 			char tmpSpeedResult[256];
-			snprintf(tmpSpeedResult, sizeof(tmpSpeedResult),"%s - %i", "Result: crash.", g_iSpeedTestPart);
+			snprintf(tmpSpeedResult, sizeof(tmpSpeedResult), "%s - %i", "Result: crash.", g_iSpeedTestPart);
 			UTIL_TextMsg(g_hPlayerSpeedCaller, tmpSpeedResult);
 		}
 		g_iSpeedTestPart = 0;
@@ -200,7 +279,7 @@ static cell AMX_NATIVE_CALL print_sys_info(AMX* amx, cell* params) // 1 pararam
 		snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s", tmpSysString.c_str());
 		UTIL_TextMsg(index, tmpSysInfoPrint);
 
-		tmpSysString = 
+		tmpSysString =
 			". Build: " + std::string(sysinfo.version) +
 			". Arch: " + std::string(sysinfo.machine) +
 			". Name: " + std::string(sysinfo.domainname);
@@ -212,11 +291,38 @@ static cell AMX_NATIVE_CALL print_sys_info(AMX* amx, cell* params) // 1 pararam
 		*/
 		UTIL_TextMsg(index, "Win32 not supported!");
 #endif
-	}
+}
 	else
 	{
 		MF_LogError(amx, AMX_ERR_NATIVE, "Player %d is not valid!", index);
 	}
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL init_mini_server(AMX* amx, cell* params)  // 1 param
+{
+	int port = params[1];
+	g_iMiniServerPort = port;
+	g_iWaitForListen = 1;
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL stop_mini_server(AMX* amx, cell* params)
+{
+	g_iWaitForListen = 0;
+	g_hMiniServer.stop();
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL mini_server_res(AMX* amx, cell* params) // 2 params
+{
+	int iLen, iLen2;
+	const char* ip = MF_GetAmxString(amx, params[1], 0, &iLen);
+	const char* res = MF_GetAmxString(amx, params[2], 1, &iLen2);
+	sMiniServerStr_RES tmpsMiniServerStr_RES = sMiniServerStr_RES();
+	tmpsMiniServerStr_RES.ip = ip;
+	tmpsMiniServerStr_RES.res = res;
+	g_MiniServerResList.push_back(tmpsMiniServerStr_RES);
 	return 0;
 }
 
@@ -236,7 +342,7 @@ static cell AMX_NATIVE_CALL test_regex_req(AMX* amx, cell* params) // 1 pararam
 		{
 			error = 1;
 
-			const static std::regex re ("(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n");
+			const static std::regex re("(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n");
 
 			error = 2;
 			std::cmatch m;
@@ -270,19 +376,24 @@ AMX_NATIVE_INFO my_Natives[] =
 	{"test_download_speed",	test_download_speed},
 	{"print_sys_info",	print_sys_info},
 	{"test_regex_req",	test_regex_req},
+	{"init_mini_server",	init_mini_server},
+	{"stop_mini_server",	stop_mini_server},
+	{"mini_server_res",	mini_server_res},
 	{NULL,			NULL},
 };
 
 void OnAmxxAttach() // Server start
 {
 	MF_AddNatives(my_Natives);
+	g_hReqForward = MF_RegisterForward("mini_server_req", ET_STOP, FP_STRING, FP_STRING, FP_DONE);
 	g_hSpeedTestThread = std::thread(download_speed_thread);
-	//g_hMiniServerThread 
+	g_hMiniServerThread = std::thread(mini_server_thread);
 }
 
 void OnAmxxDetach() // Server stop
 {
 	g_hTextMsg = 0;
 	g_iSpeedTestPart = -1;
+	g_iWaitForListen = -1;
 }
 

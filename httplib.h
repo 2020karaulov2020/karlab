@@ -98,7 +98,7 @@
 /*
  * Headers
  */
-int* g_retval = 0;
+
 #ifdef _WIN32
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -597,6 +597,7 @@ inline void default_socket_options(socket_t sock) {
 class Server {
 public:
   using Handler = std::function<void(const Request &, Response &)>;
+  using HandlerWithReturn = std::function<bool(const Request &, Response &)>;
   using HandlerWithContentReader = std::function<void(
       const Request &, Response &, const ContentReader &content_reader)>;
   using Expect100ContinueHandler =
@@ -623,24 +624,28 @@ public:
   bool set_mount_point(const char *mount_point, const char *dir,
                        Headers headers = Headers());
   bool remove_mount_point(const char *mount_point);
-  void set_file_extension_and_mimetype_mapping(const char *ext,
+  Server &set_file_extension_and_mimetype_mapping(const char *ext,
                                                const char *mime);
-  void set_file_request_handler(Handler handler);
+  Server &set_file_request_handler(Handler handler);
 
-  void set_error_handler(Handler handler);
-  void set_expect_100_continue_handler(Expect100ContinueHandler handler);
-  void set_logger(Logger logger);
+  Server &set_error_handler(HandlerWithReturn handler);
+  Server &set_error_handler(Handler handler);
+  Server &set_pre_routing_handler(HandlerWithReturn handler);
+  Server &set_post_routing_handler(Handler handler);
 
-  void set_tcp_nodelay(bool on);
-  void set_socket_options(SocketOptions socket_options);
+  Server &set_expect_100_continue_handler(Expect100ContinueHandler handler);
+  Server &set_logger(Logger logger);
 
-  void set_keep_alive_max_count(size_t count);
-  void set_keep_alive_timeout(time_t sec);
-  void set_read_timeout(time_t sec, time_t usec = 0);
-  void set_write_timeout(time_t sec, time_t usec = 0);
-  void set_idle_interval(time_t sec, time_t usec = 0);
+  Server &set_tcp_nodelay(bool on);
+  Server &set_socket_options(SocketOptions socket_options);
 
-  void set_payload_max_length(size_t length);
+  Server &set_keep_alive_max_count(size_t count);
+  Server &set_keep_alive_timeout(time_t sec);
+  Server &set_read_timeout(time_t sec, time_t usec = 0);
+  Server &set_write_timeout(time_t sec, time_t usec = 0);
+  Server &set_idle_interval(time_t sec, time_t usec = 0);
+
+  Server &set_payload_max_length(size_t length);
 
   bool bind_to_port(const char *host, int port, int socket_flags = 0);
   int bind_to_any_port(const char *host, int socket_flags = 0);
@@ -734,7 +739,9 @@ private:
   Handlers delete_handlers_;
   HandlersForContentReader delete_handlers_for_content_reader_;
   Handlers options_handlers_;
-  Handler error_handler_;
+  HandlerWithReturn error_handler_;
+  HandlerWithReturn pre_routing_handler_;
+  Handler post_routing_handler_;
   Logger logger_;
   Expect100ContinueHandler expect_100_continue_handler_;
 
@@ -1021,7 +1028,7 @@ protected:
 
   bool compress_ = false;
   bool decompress_ = true;
-  int retval;
+
   std::string interface_;
 
   std::string proxy_host_;
@@ -1085,8 +1092,7 @@ public:
 
   bool is_valid() const;
 
-  Result Get(const char* path);
-  Result Get(const char* path, int * retval);
+  Result Get(const char *path);
   Result Get(const char *path, const Headers &headers);
   Result Get(const char *path, Progress progress);
   Result Get(const char *path, const Headers &headers, Progress progress);
@@ -4152,57 +4158,104 @@ inline bool Server::remove_mount_point(const char *mount_point) {
   return false;
 }
 
-inline void Server::set_file_extension_and_mimetype_mapping(const char *ext,
+inline Server &Server::set_file_extension_and_mimetype_mapping(const char *ext,
                                                             const char *mime) {
   file_extension_and_mimetype_map_[ext] = mime;
+
+  return *this;
 }
 
-inline void Server::set_file_request_handler(Handler handler) {
+inline Server &Server::set_file_request_handler(Handler handler) {
   file_request_handler_ = std::move(handler);
+
+  return *this;
 }
 
-inline void Server::set_error_handler(Handler handler) {
+inline Server &Server::set_error_handler(HandlerWithReturn handler) {
   error_handler_ = std::move(handler);
+  return *this;
 }
 
-inline void Server::set_tcp_nodelay(bool on) { tcp_nodelay_ = on; }
-
-inline void Server::set_socket_options(SocketOptions socket_options) {
-  socket_options_ = std::move(socket_options);
+inline Server &Server::set_error_handler(Handler handler) {
+  error_handler_ = [handler](const Request &req, Response &res) {
+    handler(req, res);
+    return true;
+  };
+  return *this;
 }
 
-inline void Server::set_logger(Logger logger) { logger_ = std::move(logger); }
+inline Server &Server::set_pre_routing_handler(HandlerWithReturn handler) {
+  pre_routing_handler_ = std::move(handler);
+  return *this;
+}
 
-inline void
-Server::set_expect_100_continue_handler(Expect100ContinueHandler handler) {
+inline Server &Server::set_post_routing_handler(Handler handler) {
+  post_routing_handler_ = std::move(handler);
+  return *this;
+}
+
+inline Server &Server::set_logger(Logger logger) {
+  logger_ = std::move(logger);
+
+  return *this;
+}
+
+inline Server
+&Server::set_expect_100_continue_handler(Expect100ContinueHandler handler) {
   expect_100_continue_handler_ = std::move(handler);
+
+  return *this;
 }
 
-inline void Server::set_keep_alive_max_count(size_t count) {
+inline Server &Server::set_tcp_nodelay(bool on) {
+  tcp_nodelay_ = on;
+
+  return *this;
+}
+
+inline Server &Server::set_socket_options(SocketOptions socket_options) {
+  socket_options_ = std::move(socket_options);
+
+  return *this;
+}
+
+inline Server &Server::set_keep_alive_max_count(size_t count) {
   keep_alive_max_count_ = count;
+
+  return *this;
 }
 
-inline void Server::set_keep_alive_timeout(time_t sec) {
+inline Server &Server::set_keep_alive_timeout(time_t sec) {
   keep_alive_timeout_sec_ = sec;
+
+  return *this;
 }
 
-inline void Server::set_read_timeout(time_t sec, time_t usec) {
+inline Server &Server::set_read_timeout(time_t sec, time_t usec) {
   read_timeout_sec_ = sec;
   read_timeout_usec_ = usec;
+
+  return *this;
 }
 
-inline void Server::set_write_timeout(time_t sec, time_t usec) {
+inline Server &Server::set_write_timeout(time_t sec, time_t usec) {
   write_timeout_sec_ = sec;
   write_timeout_usec_ = usec;
+
+  return *this;
 }
 
-inline void Server::set_idle_interval(time_t sec, time_t usec) {
+inline Server &Server::set_idle_interval(time_t sec, time_t usec) {
   idle_interval_sec_ = sec;
   idle_interval_usec_ = usec;
+
+  return *this;
 }
 
-inline void Server::set_payload_max_length(size_t length) {
+inline Server &Server::set_payload_max_length(size_t length) {
   payload_max_length_ = length;
+
+  return *this;
 }
 
 inline bool Server::bind_to_port(const char *host, int port, int socket_flags) {
@@ -4269,8 +4322,7 @@ inline bool Server::write_response_core(Stream &strm, bool close_connection,
                                         bool need_apply_ranges) {
   assert(res.status != -1);
 
-  if (400 <= res.status && error_handler_) {
-    error_handler_(req, res);
+  if (400 <= res.status && error_handler_ && error_handler_(req, res)) {
     need_apply_ranges = true;
   }
 
@@ -4278,7 +4330,7 @@ inline bool Server::write_response_core(Stream &strm, bool close_connection,
   std::string boundary;
   if (need_apply_ranges) { apply_ranges(req, res, content_type, boundary); }
 
-  // Preapre additional headers
+  // Prepare additional headers
   if (close_connection || req.get_header_value("Connection") == "close") {
     res.set_header("Connection", "close");
   } else {
@@ -4301,6 +4353,8 @@ inline bool Server::write_response_core(Stream &strm, bool close_connection,
   if (!res.has_header("Accept-Ranges") && req.method == "HEAD") {
     res.set_header("Accept-Ranges", "bytes");
   }
+
+  if (post_routing_handler_) { post_routing_handler_(req, res); }
 
   // Response line and headers
   {
@@ -4605,6 +4659,8 @@ inline bool Server::listen_internal() {
 }
 
 inline bool Server::routing(Request &req, Response &res, Stream &strm) {
+  if (pre_routing_handler_ && pre_routing_handler_(req, res)) { return true; }
+
   // File handler
   bool is_head_request = req.method == "HEAD";
   if ((req.method == "GET" || is_head_request) &&
@@ -5086,7 +5142,7 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
     // Set this to false immediately - if it ever gets set to true by the end of
     // the request, we know another thread instructed us to close the socket.
     socket_should_be_closed_when_request_is_done_ = false;
-    *g_retval = 15;
+
     auto is_alive = false;
     if (socket_.is_open()) {
       is_alive = detail::select_write(socket_.sock, 0, 0) > 0;
@@ -5101,7 +5157,7 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
         close_socket(socket_);
       }
     }
-    *g_retval = 16;
+
     if (!is_alive) {
       if (!create_and_connect_socket(socket_, error)) { return false; }
 
@@ -5120,7 +5176,7 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
       }
 #endif
     }
-    *g_retval = 17;
+
     // Mark the current socket as being in use so that it cannot be closed by
     // anyone else while this request is ongoing, even though we will be
     // releasing the mutex.
@@ -5130,15 +5186,12 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
     socket_requests_in_flight_ += 1;
     socket_requests_are_from_thread_ = std::this_thread::get_id();
   }
-  *g_retval = 18;
+
   auto close_connection = !keep_alive_;
   auto ret = process_socket(socket_, [&](Stream &strm) {
-
-      *g_retval = 191;
     return handle_request(strm, req, res, close_connection, error);
   });
 
-  *g_retval = 192;
   // Briefly lock mutex in order to mark that a request is no longer ongoing
   {
     std::lock_guard<std::mutex> guard(socket_mutex_);
@@ -5148,7 +5201,6 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
       socket_requests_are_from_thread_ = std::thread::id();
     }
 
-    *g_retval = 193;
     if (socket_should_be_closed_when_request_is_done_ || close_connection ||
         !ret) {
       shutdown_ssl(socket_, true);
@@ -5156,7 +5208,7 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
       close_socket(socket_);
     }
   }
-  *g_retval = 19;
+
   if (!ret) {
     if (error == Error::Success) { error = Error::Unknown; }
   }
@@ -5167,21 +5219,18 @@ inline bool ClientImpl::send(const Request &req, Response &res, Error &error) {
 inline Result ClientImpl::send(const Request &req) {
   auto res = detail::make_unique<Response>();
   auto error = Error::Success;
-  *g_retval = 13;
   auto ret = send(req, *res, error);
-  *g_retval = 50;
   return Result{ret ? std::move(res) : nullptr, error};
 }
 
 inline bool ClientImpl::handle_request(Stream &strm, const Request &req,
                                        Response &res, bool close_connection,
                                        Error &error) {
-    *g_retval = 181;
   if (req.path.empty()) {
     error = Error::Connection;
     return false;
   }
-  *g_retval = 182;
+
   bool ret;
 
   if (!is_ssl() && !proxy_host_.empty() && proxy_port_ != -1) {
@@ -5191,13 +5240,13 @@ inline bool ClientImpl::handle_request(Stream &strm, const Request &req,
   } else {
     ret = process_request(strm, req, res, close_connection, error);
   }
-  *g_retval = 183;
+
   if (!ret) { return false; }
 
   if (300 < res.status && res.status < 400 && follow_location_) {
     ret = redirect(req, res, error);
   }
-  *g_retval = 184;
+
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
   if ((res.status == 401 || res.status == 407) &&
       req.authorization_count_ < 5) {
@@ -5310,7 +5359,7 @@ inline bool ClientImpl::write_content_with_provider(Stream &strm,
 
 inline bool ClientImpl::write_request(Stream &strm, const Request &req,
                                       bool close_connection, Error &error) {
-  // Prepare additonal headers
+  // Prepare additional headers
   Headers headers;
   if (close_connection) { headers.emplace("Connection", "close"); }
 
@@ -5527,7 +5576,7 @@ inline bool ClientImpl::process_request(Stream &strm, const Request &req,
   }
 
   // Body
-  if (req.method != "HEAD" && req.method != "CONNECT") {
+  if ((res.status != 204) && req.method != "HEAD" && req.method != "CONNECT") {
     auto out =
         req.content_receiver_
             ? static_cast<ContentReceiverWithProgress>(
@@ -5594,7 +5643,6 @@ ClientImpl::process_socket(const Socket &socket,
 inline bool ClientImpl::is_ssl() const { return false; }
 
 inline Result ClientImpl::Get(const char *path) {
-    *g_retval = 11;
   return Get(path, Headers(), Progress());
 }
 
@@ -5614,7 +5662,7 @@ inline Result ClientImpl::Get(const char *path, const Headers &headers,
   req.headers = default_headers_;
   req.headers.insert(headers.begin(), headers.end());
   req.progress_ = std::move(progress);
-  *g_retval = 12;
+
   return send(req);
 }
 
@@ -6859,10 +6907,7 @@ inline bool Client::is_valid() const {
   return cli_ != nullptr && cli_->is_valid();
 }
 
-inline Result Client::Get(const char* path) { return cli_->Get(path); }
-inline Result Client::Get(const char* path, int * retval) { 
-    g_retval = retval;
-    return cli_->Get(path); }
+inline Result Client::Get(const char *path) { return cli_->Get(path); }
 inline Result Client::Get(const char *path, const Headers &headers) {
   return cli_->Get(path, headers);
 }
