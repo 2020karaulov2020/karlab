@@ -129,7 +129,7 @@ void mini_server_thread()
 						{
 							if (g_MiniServerResList[i].ip == req.remote_addr)
 							{
-								res.set_content(g_MiniServerResList[i].res, "text/plain");
+								res.set_content(g_MiniServerResList[i].res, "text/html");
 								g_MiniServerResList.erase(g_MiniServerResList.begin() + i);
 								return;
 							}

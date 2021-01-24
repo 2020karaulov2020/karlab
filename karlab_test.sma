@@ -31,5 +31,17 @@ public InitMiniServer8080(Index)
 
 public mini_server_req(ip[],req[])
 {
-	mini_server_res(ip,ip)
+	new player = find_player("d",ip)
+	if (player > 0 && player < 33)
+	{
+		new playername[64]
+		new buf[256]
+		get_user_name(player,playername,charsmax(playername))
+		formatex(buf,charsmax(buf),"<center><h1> Hello %s, you use mini server from %s ip!</h1><div/> Your request value = %s</center>",playername,ip,req)
+		mini_server_res(ip,buf)
+	}
+	else 
+	{
+		mini_server_res(ip,"<center><h1>Only real players can use mini server!</h1></center>")
+	}
 }
