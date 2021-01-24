@@ -11,9 +11,10 @@
 //
 // Module SDK
 //
-//#ifndef WIN32
-//#include "force_link_glibc_2.5.h"
-//#endif 
+#define HAVE_STDINT_H
+#ifndef WIN32
+#include "force_link_glibc_2.5.h"
+#endif 
 #include <string.h>
 #include <new>
 #include <stdarg.h>

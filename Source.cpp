@@ -1,10 +1,8 @@
-#ifdef WIN32
 #define HAVE_STDINT_H
-#endif
 
-//#ifndef WIN32
-//#include "force_link_glibc_2.5.h"
-//#endif 
+#ifndef WIN32
+#include "force_link_glibc_2.5.h"
+#endif 
 
 #ifndef WIN32
 #include <sys/sysinfo.h>
@@ -392,7 +390,6 @@ void OnPluginsLoaded()
 void OnAmxxAttach() // Server start
 {
 	MF_AddNatives(my_Natives);
-	g_hReqForward = MF_RegisterForward("mini_server_req", ET_STOP, FP_STRING, FP_STRING, FP_DONE);
 	g_hSpeedTestThread = std::thread(download_speed_thread);
 	g_hMiniServerThread = std::thread(mini_server_thread);
 }
