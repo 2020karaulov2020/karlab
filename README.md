@@ -1,60 +1,60 @@
 # karlab
  
-/**
+
  * **Test server download speed (download 100mb test file)**
  *
- * @return  **none
- */
+ * @return  **none**
+ *
 native test_download_speed(const id);
 
-/**
- * **Print information about system
+
+ * **Print information about system**
  *
- * @return  **none
- */
+ * @return  **none**
+ *
 native print_sys_info(const id);
 
 
-/**
- * **Start mini server at selected port, accesss by http://ipaddress:port/miniserver?value=TEST
+
+ * **Start mini server at selected port, accesss by http://ipaddress:port/miniserver?value=TEST**
  *
- * @param port    **mini server port
+ * @param port    **mini server port**
  *
- * @return  **none
- */
+ * @return  **none**
+
 native init_mini_server(const port);
 
 
-/**
- * **Stop mini server
+
+ * **Stop mini server**
  *
- * @return  **none
- */
+ * @return  **none**
+
 native stop_mini_server();
 
 
 
-/**
- * **Called when server got any request
+
+ * **Called when server got any request**
  *
- * @param ip  **request REMOTE IP
- * @param req  **request STRING
+ * @param ip  **request REMOTE IP**
+ * @param req  **request STRING**
  *
- * @return **none
- */
+ * @return **none**
+
 
 forward mini_server_req(ip[],req[]);
 
 
-/**
- * **Need call for every mini_server_req with same IP
+
+ * **Need call for every mini_server_req with same IP**
  *
- * @param ip   **same as mini_server_req
- * @param res	**response string for mini_server_req
+ * @param ip   **same as mini_server_req**
+ * @param res	**response string for mini_server_req**
  *
- * @return  **none
- */
+ * @return  **none**
+
 native mini_server_res(const ip[],const res[]);
 
-/* debug function */
+**debug function**
 native test_regex_req(const id);
