@@ -151,8 +151,8 @@ struct amxx_module_info_s
   typedef uint16_t  ucell;
   typedef int16_t   cell;
 #elif PAWN_CELL_SIZE==32
-  typedef unsigned int  ucell;
-  typedef int   cell;
+  typedef uint32_t  ucell;
+  typedef int32_t   cell;
 #define REAL	float
 #elif PAWN_CELL_SIZE==64
   typedef uint64_t  ucell;
