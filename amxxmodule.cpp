@@ -1,17 +1,38 @@
-// vim: set ts=4 sw=4 tw=99 noet:
-//
-// AMX Mod X, based on AMX Mod by Aleksander Naszko ("OLO").
-// Copyright (C) The AMX Mod X Development Team.
-// Parts Copyright (C) 2001-2003 Will Day <willday@hpgx.net>
-//
-// This software is licensed under the GNU General Public License, version 3 or higher.
-// Additional exceptions apply. For full license details, see LICENSE.txt or visit:
-//     https://alliedmods.net/amxmodx-license
-
-//
-// Module SDK
-//
+/* AMX Mod X
+*
+* by the AMX Mod X Development Team
+*  originally developed by OLO
+*
+* Parts Copyright (C) 2001-2003 Will Day <willday@hpgx.net>
+*
+*  This program is free software; you can redistribute it and/or modify it
+*  under the terms of the GNU General Public License as published by the
+*  Free Software Foundation; either version 2 of the License, or (at
+*  your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful, but
+*  WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+*  General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software Foundation,
+*  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*
+*  In addition, as a special exception, the author gives permission to
+*  link the code of this program with the Half-Life Game Engine ("HL
+*  Engine") and Modified Game Libraries ("MODs") developed by Valve,
+*  L.L.C ("Valve"). You must obey the GNU General Public License in all
+*  respects for all of the code used other than the HL Engine and MODs
+*  from Valve. If you modify this file, you may extend this exception
+*  to your version of the file, but you are not obligated to do so. If
+*  you do not wish to do so, delete this exception statement from your
+*  version.
+*
+*  Description: AMX Mod X Module Interface Functions
+*/
 #define HAVE_STDINT_H
+
 //#ifndef WIN32
 //#include "force_link_glibc_2.5.h"
 //#endif 
@@ -2223,7 +2244,7 @@ static META_FUNCTIONS g_MetaFunctions_Table =
 	GetEngineFunctions_Post
 };
 
- int Meta_Query(const char *ifvers, plugin_info_t **pPlugInfo, mutil_funcs_t *pMetaUtilFuncs)
+C_DLLEXPORT int Meta_Query(char *ifvers, plugin_info_t **pPlugInfo, mutil_funcs_t *pMetaUtilFuncs)
 {
 	if ((int) CVAR_GET_FLOAT("developer") != 0)
 		UTIL_LogPrintf("[%s] dev: called: Meta_Query; version=%s, ours=%s\n", 
@@ -2424,7 +2445,6 @@ PFN_ADD_NEW_NATIVES			g_fn_AddNewNatives;
 PFN_BUILD_PATHNAME			g_fn_BuildPathname;
 PFN_BUILD_PATHNAME_R		g_fn_BuildPathnameR;
 PFN_GET_AMXADDR				g_fn_GetAmxAddr;
-PFN_GET_AMXVECTOR_NULL		g_fn_GetAmxVectorNull;
 PFN_PRINT_SRVCONSOLE		g_fn_PrintSrvConsole;
 PFN_GET_MODNAME				g_fn_GetModname;
 PFN_GET_AMXSCRIPTNAME		g_fn_GetAmxScriptName;
@@ -2432,10 +2452,7 @@ PFN_GET_AMXSCRIPT			g_fn_GetAmxScript;
 PFN_FIND_AMXSCRIPT_BYAMX	g_fn_FindAmxScriptByAmx;
 PFN_FIND_AMXSCRIPT_BYNAME	g_fn_FindAmxScriptByName;
 PFN_SET_AMXSTRING			g_fn_SetAmxString;
-PFN_SET_AMXSTRING_UTF8_CHAR	g_fn_SetAmxStringUTF8Char;
-PFN_SET_AMXSTRING_UTF8_CELL	g_fn_SetAmxStringUTF8Cell;
 PFN_GET_AMXSTRING			g_fn_GetAmxString;
-PFN_GET_AMXSTRING_NULL		g_fn_GetAmxStringNull;
 PFN_GET_AMXSTRINGLEN		g_fn_GetAmxStringLen;
 PFN_FORMAT_AMXSTRING		g_fn_FormatAmxString;
 PFN_COPY_AMXMEMORY			g_fn_CopyAmxMemory;
@@ -2504,7 +2521,6 @@ PFN_GETLOCALINFO			g_fn_GetLocalInfo;
 PFN_AMX_REREGISTER			g_fn_AmxReRegister;
 PFN_REGISTERFUNCTIONEX		g_fn_RegisterFunctionEx;
 PFN_MESSAGE_BLOCK			g_fn_MessageBlock;
-PFN_GET_CONFIG_MANAGER		g_fn_GetConfigManager;
 
 // *** Exports ***
 C_DLLEXPORT int AMXX_Query(int *interfaceVersion, amxx_module_info_s *moduleInfo)
@@ -2564,7 +2580,6 @@ C_DLLEXPORT int AMXX_Attach(PFN_REQ_FNPTR reqFnptrFunc)
 	REQFUNC("Format", g_fn_Format, PFN_FORMAT);
 	REQFUNC("RegisterFunction", g_fn_RegisterFunction, PFN_REGISTERFUNCTION);
 	REQFUNC("RegisterFunctionEx", g_fn_RegisterFunctionEx, PFN_REGISTERFUNCTIONEX);
-	REQFUNC("GetConfigManager", g_fn_GetConfigManager, PFN_GET_CONFIG_MANAGER);
 
 	// Amx scripts
 	REQFUNC("GetAmxScript", g_fn_GetAmxScript, PFN_GET_AMXSCRIPT);
@@ -2576,15 +2591,11 @@ C_DLLEXPORT int AMXX_Attach(PFN_REQ_FNPTR reqFnptrFunc)
 
 	// String / mem in amx scripts support
 	REQFUNC("SetAmxString", g_fn_SetAmxString, PFN_SET_AMXSTRING);
-	REQFUNC("SetAmxStringUTF8Char", g_fn_SetAmxStringUTF8Char, PFN_SET_AMXSTRING_UTF8_CHAR);
-	REQFUNC("SetAmxStringUTF8Cell", g_fn_SetAmxStringUTF8Cell, PFN_SET_AMXSTRING_UTF8_CELL);
 	REQFUNC("GetAmxString", g_fn_GetAmxString, PFN_GET_AMXSTRING);
-	REQFUNC("GetAmxStringNull", g_fn_GetAmxStringNull, PFN_GET_AMXSTRING_NULL);
 	REQFUNC("GetAmxStringLen", g_fn_GetAmxStringLen, PFN_GET_AMXSTRINGLEN);
 	REQFUNC("FormatAmxString", g_fn_FormatAmxString, PFN_FORMAT_AMXSTRING);
 	REQFUNC("CopyAmxMemory", g_fn_CopyAmxMemory, PFN_COPY_AMXMEMORY);
 	REQFUNC("GetAmxAddr", g_fn_GetAmxAddr, PFN_GET_AMXADDR);
-	REQFUNC("GetAmxVectorNull", g_fn_GetAmxVectorNull, PFN_GET_AMXVECTOR_NULL);
 
 	REQFUNC("amx_Exec", g_fn_AmxExec, PFN_AMX_EXEC);
 	REQFUNC("amx_Execv", g_fn_AmxExecv, PFN_AMX_EXECV);
@@ -2721,12 +2732,10 @@ void MF_LogError(AMX *amx, int err, const char *fmt, ...)
 // Makes sure compiler reports errors when macros are invalid
 void ValidateMacros_DontCallThis_Smiley()
 {
-	const cell str[] = { 's', 't', 'r', '\0' };
 	MF_BuildPathname("str", "str", 0);
 	MF_BuildPathnameR(NULL, 0, "%d", 0);
 	MF_FormatAmxString(NULL, 0, 0, NULL);
 	MF_GetAmxAddr(NULL, 0);
-	MF_GetAmxVectorNull(NULL, 0);
 	MF_PrintSrvConsole("str", "str", 0);
 	MF_GetModname();
 	MF_GetScriptName(0);
@@ -2734,10 +2743,7 @@ void ValidateMacros_DontCallThis_Smiley()
 	MF_FindScriptByAmx(NULL);
 	MF_FindScriptByName("str");
 	MF_SetAmxString(NULL, 0, "str", 0);
-	MF_SetAmxStringUTF8Char(NULL, 0, "str", 0, 0);
-	MF_SetAmxStringUTF8Cell(NULL, 0, str, 0, 0);
-	MF_GetAmxString(NULL, 0, 0, NULL);
-	MF_GetAmxStringNull(NULL, 0, 0, NULL);
+	MF_GetAmxString(NULL, 0, 0, 0);
 	MF_GetAmxStringLen(NULL);
 	MF_CopyAmxMemory(NULL, NULL, 0);
 	MF_Log("str", "str", 0);
@@ -2792,7 +2798,6 @@ void ValidateMacros_DontCallThis_Smiley()
 	MF_RemoveLibraries(NULL);
 	MF_OverrideNatives(NULL, NULL);
 	MF_MessageBlock(0, 0, NULL);
-	MF_GetConfigManager();
 }
 #endif
 
@@ -3136,27 +3141,3 @@ unsigned short FixedUnsigned16( float value, float scale )
 	return (unsigned short)output;
 }
 #endif // USE_METAMOD
-
-template unsigned int strncopy<char, char>(char *, const char *src, size_t count);
-template unsigned int strncopy<cell, char>(cell *, const char *src, size_t count);
-template unsigned int strncopy<cell, cell>(cell *, const cell *src, size_t count);
-
-template <typename D, typename S>
-unsigned int strncopy(D *dest, const S *src, size_t count)
-{
-	if (!count)
-	{
-		return 0;
-	}
-
-	D *start = dest;
-
-	while ((*src) && (--count))
-	{
-		*dest++ = *(unsigned char*)src++;
-	}
-
-	*dest = '\0';
-
-	return (dest - start);
-}

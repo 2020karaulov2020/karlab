@@ -384,7 +384,7 @@ AMX_NATIVE_INFO my_Natives[] =
 
 void OnPluginsLoaded() 
 {
-	//g_hReqForward = MF_RegisterForward("mini_server_req", ET_IGNORE, FP_STRING, FP_STRING, FP_DONE);
+	g_hReqForward = MF_RegisterForward("mini_server_req", ET_IGNORE, FP_STRING, FP_STRING, FP_DONE);
 }
 
 void OnAmxxAttach() // Server start
