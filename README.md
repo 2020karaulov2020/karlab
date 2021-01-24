@@ -1,7 +1,7 @@
 # karlab
  
 /**
- * **Test server download speed (download 100mb test file)
+ * **Test server download speed (download 100mb test file)**
  *
  * @return  **none
  */
